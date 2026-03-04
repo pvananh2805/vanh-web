@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - MSS MinhSonStone{% endblock %}
+
+{% block content %}
+<section class="page-header page-header-sm">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ url_for('home') }}">Trang chủ</a>
+            <span>/</span>
+            <a href="{{ url_for('products') }}">Sản phẩm</a>
+            <span>/</span>
+            <span>{{ product.name }}</span>
+        </nav>
+    </div>
+</section>
+
+<section class="section product-detail-section">
+    <div class="container">
+        <div class="product-detail">
+            <div class="product-gallery">
+                <div class="main-image">
+                    <img src="{{ product.image }}" alt="{{ product.name }}">
+                    <a href="#" class="contact-overlay" title="Liên hệ">Liên hệ</a>
+                </div>
+                <div class="thumbnail-list">
+                    <div class="thumbnail active">
+                        <img src="{{ product.image }}" alt="{{ product.name }}">
+                    </div>
+                    <div class="thumbnail">
+                        <img src="{{ product.image }}" alt="{{ product.name }}">
+                    </div>
+                    <div class="thumbnail">
+                        <img src="{{ product.image }}" alt="{{ product.name }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-content">
+                <span class="product-category-badge">{{ product.category }}</span>
+                <h1 class="product-title">{{ product.name }}</h1>
+                <!-- price hidden for ad pages -->
+
+                <div class="product-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Mã sản phẩm:</span>
+                        <span class="meta-value">{{ product.sku }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Kích thước:</span>
+                        <span class="meta-value">{{ product.size }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Xuất xứ:</span>
+                        <span class="meta-value">{{ product.origin }}</span>
+                    </div>
+                </div>
+
+                <div class="product-description">
+                    <h3>Mô tả sản phẩm</h3>
+                    <p>{{ product.description }}</p>
+                </div>
+
+                <div class="product-actions">
+                    <!-- Like / Dislike -->
+                    <div class="like-dislike-group">
+                        <button class="like-btn">
+                            <span class="icon">👍</span>
+                            <span class="count">{{ product.likes }}</span>
+                        </button>
+                        <button class="dislike-btn">
+                            <span class="icon">👎</span>
+                            <span class="count">{{ product.dislikes }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Favorite -->
+                    {% set favs = session.get('favorites', []) %}
+                    {% if product.id in favs %}
+                    <form method="POST" action="{{ url_for('favorites_remove', id=product.id) }}" style="display:inline;">
+                        <button class="favorite-btn-large" title="Đã thích">♥</button>
+                    </form>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('favorites_add', id=product.id) }}" style="display:inline;">
+                        <button class="favorite-btn-large" title="Thích">♡</button>
+                    </form>
+                    {% endif %}
+
+                    <!-- Rating Button -->
+                    <a href="#rating-modal" class="btn btn-primary">
+                        <span>⭐</span>
+                        <span>Đánh giá</span>
+                    </a>
+                </div>
+
+                <div class="product-contact">
+    <p>Liên hệ ngay:</p>
+
+    <div class="contact-buttons">
+        <a href="tel:{{ shop.phone }}" class="contact-btn phone">
+            📞 Gọi
+        </a>
+
+        <a href="mailto:{{ shop.gmail }}" class="contact-btn gmail">
+            ✉️ Gmail
+        </a>
+
+        <a href="{{ shop.facebook }}" target="_blank" class="contact-btn facebook">
+            📘 Facebook
+        </a>
+    </div>
+</div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Rating Modal (CSS Only) -->
+<div class="modal-overlay" id="rating-modal">
+    <div class="modal-box">
+        <a href="#" class="modal-close">&times;</a>
+        <h2 class="modal-title">Đánh giá sản phẩm</h2>
+        <p class="modal-subtitle">{{ product.name }}</p>
+        
+        <form class="rating-form" method="POST" action="{{ url_for('submit_rating', id=product.id) }}">
+            <div class="star-rating">
+                <input type="radio" id="star5" name="rating" value="5">
+                <label for="star5" class="star">★</label>
+                
+                <input type="radio" id="star4" name="rating" value="4">
+                <label for="star4" class="star">★</label>
+                
+                <input type="radio" id="star3" name="rating" value="3">
+                <label for="star3" class="star">★</label>
+                
+                <input type="radio" id="star2" name="rating" value="2">
+                <label for="star2" class="star">★</label>
+                
+                <input type="radio" id="star1" name="rating" value="1">
+                <label for="star1" class="star">★</label>
+            </div>
+            <p class="rating-text">Chọn số sao để đánh giá</p>
+            
+            <div class="form-group">
+                <label for="rating-name">Tên của bạn</label>
+                <input type="text" id="rating-name" name="name" class="form-input" placeholder="Nhập tên của bạn">
+            </div>
+            
+            <div class="form-group">
+                <label for="rating-comment">Nhận xét</label>
+                <textarea id="rating-comment" name="comment" class="form-textarea" rows="3" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+            </div>
+            
+            <div class="modal-actions">
+                <a href="#" class="btn btn-secondary">Đóng</a>
+                <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Comments Section -->
+<section class="section comments-section">
+    <div class="container">
+        <h2 class="section-title">Bình luận ({{ comments|length }})</h2>
+        
+        <!-- Comment Form -->
+        <div class="comment-form-box">
+            <h3>Để lại bình luận</h3>
+            <form class="comment-form" method="POST" action="{{ url_for('submit_comment', id=product.id) }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="comment-name">Tên của bạn</label>
+                        <input type="text" id="comment-name" name="name" class="form-input" placeholder="Nhập tên" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment-email">Email (không bắt buộc)</label>
+                        <input type="email" id="comment-email" name="email" class="form-input" placeholder="Nhập email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="comment-content">Nội dung</label>
+                    <textarea id="comment-content" name="content" class="form-textarea" rows="4" placeholder="Viết bình luận của bạn..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+            </form>
+        </div>
+
+        <!-- Comments List -->
+        <div class="comments-list">
+            {% for comment in comments %}
+            <div class="comment-item">
+                <div class="comment-avatar">
+                    <span>{{ comment.name[0] }}</span>
+                </div>
+                <div class="comment-body">
+                    <div class="comment-header">
+                        <span class="comment-author">{{ comment.name }}</span>
+                        <span class="comment-date">{{ comment.date }}</span>
+                    </div>
+                    <p class="comment-text">{{ comment.content }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Related Products -->
+<section class="section related-section">
+    <div class="container">
+        <h2 class="section-title">Sản phẩm liên quan</h2>
+        <div class="products-grid">
+            {% for related in related_products %}
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="{{ related.image }}" alt="{{ related.name }}">
+                    <a href="{{ url_for('product_detail', id=related.id) }}" class="detail-overlay">Xem chi tiết</a>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">{{ related.name }}</h3>
+                    <p class="product-price">{{ related.price }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<script>
+document.addEventListener('click', function(e){
+    if (e.target.closest && e.target.closest('.contact-overlay')) { e.preventDefault(); }
+});
+document.querySelectorAll('#copy-phone, #copy-mail').forEach(function(el){
+  el.addEventListener('click', function(e){
+    e.preventDefault();
+    const v = el.getAttribute('data-value') || '';
+    if(navigator.clipboard && v) navigator.clipboard.writeText(v).then(()=>alert('Đã sao chép: '+v));
+  });
+});
+</script>
+{% endblock %}

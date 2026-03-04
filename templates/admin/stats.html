@@ -1,0 +1,378 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Thống kê - Admin MSS{% endblock %}
+{% block page_title %}Thống kê{% endblock %}
+
+{% block content %}
+<!-- Filter -->
+<div class="dashboard-card stats-filter-card">
+    <div class="card-body">
+        <form class="stats-filter-bar" method="GET">
+            <div class="stats-filter-group">
+                <label for="from_date">Từ ngày</label>
+                <input id="from_date" type="date" name="from_date" class="form-input date-input" value="{{ filters.from_date }}">
+            </div>
+            <div class="stats-filter-group">
+                <label for="to_date">Đến ngày</label>
+                <input id="to_date" type="date" name="to_date" class="form-input date-input" value="{{ filters.to_date }}">
+            </div>
+            <div class="stats-filter-group">
+                <label for="period">Kỳ thời gian</label>
+                <select id="period" name="period" class="form-select date-input">
+                    <option value="week" {% if filters.period == 'week' %}selected{% endif %}>Tuần này</option>
+                    <option value="month" {% if filters.period == 'month' %}selected{% endif %}>Tháng này</option>
+                    <option value="year" {% if filters.period == 'year' %}selected{% endif %}>Năm nay</option>
+                    <option value="all" {% if filters.period == 'all' %}selected{% endif %}>Tất cả</option>
+                    <option value="custom" {% if filters.period == 'custom' %}selected{% endif %}>Tùy chỉnh</option>
+                </select>
+            </div>
+
+            {% if filters.product_id %}
+            <input type="hidden" name="product_id" value="{{ filters.product_id }}">
+            {% endif %}
+            <input type="hidden" name="sort_by" value="{{ sort_by }}">
+            <input type="hidden" name="sort_dir" value="{{ sort_dir }}">
+
+            <div class="stats-filter-actions">
+                <button type="submit" class="btn btn-secondary">Lọc</button>
+                <a href="{{ url_for('admin_stats') }}" class="btn btn-secondary">Đặt lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Overview Stats -->
+<div class="stats-grid stats-grid-6">
+    <div class="stat-card stat-card-blue">
+        <div class="stat-icon">👁</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ overview.total_views }}</h3>
+            <p class="stat-label">Tổng lượt xem</p>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-green">
+        <div class="stat-icon">👍</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ overview.total_likes }}</h3>
+            <p class="stat-label">Tổng lượt thích</p>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-red">
+        <div class="stat-icon">👎</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ overview.total_dislikes }}</h3>
+            <p class="stat-label">Tổng không thích</p>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-pink">
+        <div class="stat-icon">♥</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ overview.total_favorites }}</h3>
+            <p class="stat-label">Lượt yêu thích</p>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-purple">
+        <div class="stat-icon">💬</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ overview.total_comments }}</h3>
+            <p class="stat-label">Bình luận</p>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-orange">
+        <div class="stat-icon">📦</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ overview.total_products }}</h3>
+            <p class="stat-label">Sản phẩm trong hệ thống</p>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Overall -->
+<div class="dashboard-card stats-table-card">
+    <div class="card-header">
+        <h3>Lượt xem và tương tác theo ngày</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Lượt xem</th>
+                    <th>Thích</th>
+                    <th>Không thích</th>
+                    <th>Yêu thích</th>
+                    <th>Bình luận</th>
+                    <th>Tổng tương tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if daily_overall_rows %}
+                    {% for row in daily_overall_rows %}
+                    <tr>
+                        <td>{{ row.day_label }}</td>
+                        <td>{{ row.views }}</td>
+                        <td>{{ row.likes }}</td>
+                        <td>{{ row.dislikes }}</td>
+                        <td>{{ row.favorites }}</td>
+                        <td>{{ row.comments }}</td>
+                        <td>{{ row.interactions }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="stats-empty">Không có dữ liệu trong khoảng lọc.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+<!-- Favorite Products -->
+<div class="dashboard-card stats-table-card">
+    <div class="card-header">
+        <h3>Sản phẩm được yêu thích</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Yêu thích</th>
+                    <th>Lượt xem</th>
+                    <th>Thích</th>
+                    <th>Không thích</th>
+                    <th>Bình luận</th>
+                    <th>Tổng tương tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if favorite_product_rows %}
+                    {% for row in favorite_product_rows %}
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.category }}</td>
+                        <td>{{ row.favorites }}</td>
+                        <td>{{ row.views }}</td>
+                        <td>{{ row.likes }}</td>
+                        <td>{{ row.dislikes }}</td>
+                        <td>{{ row.comments }}</td>
+                        <td>{{ row.interactions }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="stats-empty">Chưa có lượt yêu thích trong khoảng lọc.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+<!-- Category Stats -->
+<div class="dashboard-card stats-table-card">
+    <div class="card-header">
+        <h3>Phân bố theo danh mục</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Danh mục</th>
+                    <th>Sản phẩm</th>
+                    <th>Lượt xem</th>
+                    <th>Thích</th>
+                    <th>Không thích</th>
+                    <th>Yêu thích</th>
+                    <th>Bình luận</th>
+                    <th>Tổng tương tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if category_rows %}
+                    {% for row in category_rows %}
+                    <tr>
+                        <td>{{ row.category }}</td>
+                        <td>{{ row.products }}</td>
+                        <td>{{ row.views }}</td>
+                        <td>{{ row.likes }}</td>
+                        <td>{{ row.dislikes }}</td>
+                        <td>{{ row.favorites }}</td>
+                        <td>{{ row.comments }}</td>
+                        <td>{{ row.interactions }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="stats-empty">Không có dữ liệu theo danh mục trong khoảng lọc.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+<!-- Product Interactions -->
+<div class="dashboard-card stats-table-card">
+    <div class="card-header">
+        <h3>Tương tác sản phẩm và lượt xem</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th><a class="sort-link" href="{{ sort_links.name }}">Sản phẩm{% if sort_by == 'name' %}<span class="sort-indicator">{{ '↑' if sort_dir == 'asc' else '↓' }}</span>{% endif %}</a></th>
+                    <th>Danh mục</th>
+                    <th><a class="sort-link" href="{{ sort_links.views }}">Lượt xem{% if sort_by == 'views' %}<span class="sort-indicator">{{ '↑' if sort_dir == 'asc' else '↓' }}</span>{% endif %}</a></th>
+                    <th><a class="sort-link" href="{{ sort_links.likes }}">Thích{% if sort_by == 'likes' %}<span class="sort-indicator">{{ '↑' if sort_dir == 'asc' else '↓' }}</span>{% endif %}</a></th>
+                    <th><a class="sort-link" href="{{ sort_links.dislikes }}">Không thích{% if sort_by == 'dislikes' %}<span class="sort-indicator">{{ '↑' if sort_dir == 'asc' else '↓' }}</span>{% endif %}</a></th>
+                    <th><a class="sort-link" href="{{ sort_links.favorites }}">Yêu thích{% if sort_by == 'favorites' %}<span class="sort-indicator">{{ '↑' if sort_dir == 'asc' else '↓' }}</span>{% endif %}</a></th>
+                    <th><a class="sort-link" href="{{ sort_links.comments }}">Bình luận{% if sort_by == 'comments' %}<span class="sort-indicator">{{ '↑' if sort_dir == 'asc' else '↓' }}</span>{% endif %}</a></th>
+                    <th><a class="sort-link" href="{{ sort_links.interactions }}">Tổng tương tác{% if sort_by == 'interactions' %}<span class="sort-indicator">{{ '↑' if sort_dir == 'asc' else '↓' }}</span>{% endif %}</a></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if product_interaction_rows %}
+                    {% for row in product_interaction_rows %}
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.category }}</td>
+                        <td>{{ row.views }}</td>
+                        <td>{{ row.likes }}</td>
+                        <td>{{ row.dislikes }}</td>
+                        <td>{{ row.favorites }}</td>
+                        <td>{{ row.comments }}</td>
+                        <td>{{ row.interactions }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="stats-empty">Không có dữ liệu sản phẩm trong khoảng lọc.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+<!-- Product Drilldown -->
+<div class="dashboard-card stats-table-card">
+    <div class="card-header">
+        <h3>Chi tiết theo sản phẩm</h3>
+    </div>
+    <div class="card-body">
+        <form class="stats-filter-bar stats-product-picker" method="GET">
+            <div class="stats-filter-group">
+                <label for="product_id">Chọn sản phẩm</label>
+                <select id="product_id" name="product_id" class="form-select date-input">
+                    <option value="">-- Chọn sản phẩm --</option>
+                    {% for item in product_options %}
+                    <option value="{{ item.id }}" {% if selected_product_id == item.id %}selected{% endif %}>{{ item.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input type="hidden" name="from_date" value="{{ filters.from_date }}">
+            <input type="hidden" name="to_date" value="{{ filters.to_date }}">
+            <input type="hidden" name="period" value="{{ filters.period }}">
+            <input type="hidden" name="sort_by" value="{{ sort_by }}">
+            <input type="hidden" name="sort_dir" value="{{ sort_dir }}">
+            <div class="stats-filter-actions">
+                <button type="submit" class="btn btn-secondary">Xem chi tiết</button>
+            </div>
+        </form>
+
+        {% if selected_product_id > 0 %}
+        <div class="stats-subsection">
+            <h4>Số liệu theo ngày của sản phẩm đã chọn</h4>
+            <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Ngày</th>
+                        <th>Lượt xem</th>
+                        <th>Thích</th>
+                        <th>Không thích</th>
+                        <th>Yêu thích</th>
+                        <th>Bình luận</th>
+                        <th>Tổng tương tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if selected_product_daily_rows %}
+                        {% for row in selected_product_daily_rows %}
+                        <tr>
+                            <td>{{ row.day_label }}</td>
+                            <td>{{ row.views }}</td>
+                            <td>{{ row.likes }}</td>
+                            <td>{{ row.dislikes }}</td>
+                            <td>{{ row.favorites }}</td>
+                            <td>{{ row.comments }}</td>
+                            <td>{{ row.interactions }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="stats-empty">Không có dữ liệu theo ngày cho sản phẩm này trong khoảng lọc.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <div class="stats-subsection">
+            <h4>Danh sách bình luận của sản phẩm trong khoảng lọc</h4>
+            <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Người gửi</th>
+                        <th>Email</th>
+                        <th>Nội dung</th>
+                        <th>Trạng thái</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if selected_product_comment_rows %}
+                        {% for row in selected_product_comment_rows %}
+                        <tr>
+                            <td>{{ row.date }}</td>
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.email or '-' }}</td>
+                            <td>{{ row.content or '-' }}</td>
+                            <td>{{ row.status }}</td>
+                            <td>{% if row.rating > 0 %}{{ row.rating }}{% else %}-{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="stats-empty">Không có bình luận nào cho sản phẩm này trong khoảng lọc.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+        {% else %}
+        <p class="stats-empty">Chọn một sản phẩm để xem dữ liệu chi tiết theo ngày và danh sách bình luận.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Admin - MSS MinhSonStone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-logo">
+                    <span class="logo-icon">◆</span>
+                </div>
+                <h1>MSS Admin</h1>
+                <p>Đăng nhập để quản lý website</p>
+            </div>
+            
+            <form class="login-form" method="POST" action="{{ url_for('admin_login') }}">
+                {% if error %}
+                <div class="alert alert-error">
+                    {{ error }}
+                </div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <label for="passcode">Mã đăng nhập</label>
+                    <input type="password" id="passcode" name="passcode" class="form-input form-input-lg" placeholder="Nhập mã 6 số hoặc mã bảo mật" required autofocus>
+                    <span class="input-hint">Nhập mã bảo mật để truy cập</span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    Đăng nhập
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <a href="{{ url_for('home') }}">← Quay về trang chủ</a>
+            </div>
+        </div>
+        
+        <div class="login-decoration">
+            <div class="wave wave-1"></div>
+            <div class="wave wave-2"></div>
+            <div class="wave wave-3"></div>
+        </div>
+    </div>
+</body>
+</html>

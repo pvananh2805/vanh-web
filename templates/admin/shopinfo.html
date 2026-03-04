@@ -1,0 +1,58 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Shop Info - Admin{% endblock %}
+{% block page_title %}Shop Info{% endblock %}
+
+{% block content %}
+<div class="dashboard-card">
+  <div class="card-header"><h3>Thông tin cửa hàng</h3></div>
+  <div class="card-body">
+    <form method="POST" enctype="multipart/form-data">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:280px;">
+          <label>Tên cửa hàng</label>
+          <input name="shop_name" class="form-input" value="{{ shop.get('shop_name', shop.get('name', '')) }}" />
+        </div>
+        <div style="min-width:220px;">
+          <label>Điện thoại</label>
+          <input name="phone" class="form-input" value="{{ shop.get('phone','') }}" />
+        </div>
+        <div style="min-width:220px;">
+          <label>Gmail</label>
+          <input name="gmail" class="form-input" value="{{ shop.get('gmail', shop.get('email', '')) }}" />
+        </div>
+        <div style="flex-basis:100%;"></div>
+        <div style="flex:1;min-width:280px;">
+          <label>Địa chỉ</label>
+          <input name="address" class="form-input" value="{{ shop.get('address','') }}" />
+        </div>
+        <div style="flex:1;min-width:280px;">
+          <label>Facebook (link)</label>
+          <input name="facebook" class="form-input" value="{{ shop.get('facebook','') }}" />
+        </div>
+
+        <div style="flex-basis:100%;"></div>
+        <div style="flex:1;">
+          <label>Mô tả</label>
+          <textarea name="description" class="form-input" style="min-height:120px;">{{ shop.get('description','') }}</textarea>
+        </div>
+
+        <div style="width:220px;">
+          <label>Logo hiện tại</label>
+          {% if shop.get('logo') %}
+            <div style="margin:8px 0;"><img src="{{ shop.get('logo') }}" alt="logo" style="max-width:200px;max-height:120px;object-fit:contain;border-radius:6px;border:1px solid #eee;"></div>
+          {% else %}
+            <div style="margin:8px 0;color:#666">Chưa có logo</div>
+          {% endif %}
+          <label>Thay logo</label>
+          <input type="file" name="logo" accept="image/*" class="form-input" style="padding:6px;" />
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button type="submit" class="btn">Lưu thay đổi</button>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Hủy</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

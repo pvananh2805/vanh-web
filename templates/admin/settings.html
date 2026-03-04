@@ -1,0 +1,20 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %}Cài đặt Admin{% endblock %}
+{% block page_title %}Cài đặt{% endblock %}
+{% block content %}
+  <section style="max-width:720px">
+    <h3>Mã truy cập Admin</h3>
+    <form method="post" action="{{ url_for('admin_settings') }}">
+      <div style="margin:8px 0;">
+        <label>Mã hiện tại (6 chữ số). Để trống để vô hiệu hóa:</label><br>
+        <input name="admin_code" type="text" maxlength="6" pattern="\d{6}" value="{{ admin_code }}" style="padding:8px;width:320px;border:1px solid #ccc;border-radius:6px;margin-top:6px;">
+      </div>
+      <div style="margin-top:12px;">
+        <button type="submit" style="padding:8px 12px;background:#2563eb;color:#fff;border:none;border-radius:6px;">Lưu</button>
+      </div>
+    </form>
+    <p style="color:#666;margin-top:12px;font-size:14px;">
+      Nếu không có mã 6 chữ số trong cấu hình, hệ thống mặc định dùng mã 280511.
+    </p>
+  </section>
+{% endblock %}

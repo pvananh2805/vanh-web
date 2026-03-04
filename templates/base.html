@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MSS – MinhSonStone{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css', v='20260301') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ocean.css', v='20260301') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-inner" data-header-inner>
+            <a href="{{ url_for('home') }}" class="logo header-logo" data-header-logo>
+                <span class="logo-icon">◆</span>
+                <span class="logo-text">MSS – MinhSonStone</span>
+            </a>
+            
+            <!-- Global Search -->
+            <form class="header-search" method="GET" action="{{ url_for('products') }}" data-header-search>
+                <input type="text" name="q" placeholder="Tìm kiếm sản phẩm..." class="search-input-header" data-header-search-input>
+                <button type="submit" class="search-btn-header">
+                    <span class="search-icon">⌕</span>
+                </button>
+                <button type="button" class="search-close-btn" aria-label="Đóng tìm kiếm" data-header-search-close>&times;</button>
+            </form>
+            
+            <nav class="navbar header-nav" data-header-nav>
+                <ul class="nav-list">
+                    <li><a href="{{ url_for('home') }}" class="nav-link">Trang chủ</a></li>
+                    <li><a href="{{ url_for('products') }}" class="nav-link">Sản phẩm</a></li>
+                    <li><a href="{{ url_for('contact') }}" class="nav-link">Liên hệ</a></li>
+                </ul>
+            </nav>
+            
+            <a href="{{ url_for('favorites') }}" class="favorites-link header-favorites" data-header-favorites>
+                <span class="heart-icon">♥</span>
+                <span>Yêu thích</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        {% set shop_name = site_shop.shop_name or site_shop.name or 'Đang cập nhật' %}
+        {% set shop_desc = site_shop.description or 'Đang cập nhật' %}
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3 class="footer-title">{{ shop_name }}</h3>
+                    <p class="footer-desc">{{ shop_desc }}</p>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-heading">Liên kết</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('home') }}">Trang chủ</a></li>
+                        <li><a href="{{ url_for('products') }}">Sản phẩm</a></li>
+                        <li><a href="{{ url_for('contact') }}">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-heading">Danh mục</h4>
+                    <ul class="footer-links">
+                        {% set cat_state = namespace(has_visible=false) %}
+                        {% for cat in site_categories %}
+                            {% if cat.visible is not defined or cat.visible %}
+                                {% set cat_state.has_visible = true %}
+                                <li><a href="{{ url_for('products') }}?category={{ cat.slug }}">{{ cat.name }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if not cat_state.has_visible %}
+                            <li>Đang cập nhật</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-heading">Liên hệ</h4>
+                    <ul class="footer-contact">
+                        <li>📍 {{ site_shop.address or 'Đang cập nhật' }}</li>
+                        <li>
+                            📞
+                            {% if site_shop.phone %}
+                                <a class="footer-contact-link" href="tel:{{ site_shop.phone }}">{{ site_shop.phone }}</a>
+                            {% else %}
+                                Đang cập nhật
+                            {% endif %}
+                        </li>
+                        <li>
+                            ✉️
+                            {% if site_shop.gmail %}
+                                <a class="footer-contact-link" href="mailto:{{ site_shop.gmail }}">{{ site_shop.gmail }}</a>
+                            {% else %}
+                                Đang cập nhật
+                            {% endif %}
+                        </li>
+                        <li>
+                            📘
+                            {% if site_shop.facebook %}
+                                <a class="footer-contact-link" href="{{ site_shop.facebook }}" target="_blank" rel="noopener">Facebook cửa hàng</a>
+                            {% else %}
+                                Đang cập nhật
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 {{ shop_name }}. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    (function () {
+        var headerInner = document.querySelector("[data-header-inner]");
+        var searchForm = document.querySelector("[data-header-search]");
+        var searchInput = document.querySelector("[data-header-search-input]");
+        var closeBtn = document.querySelector("[data-header-search-close]");
+        if (!headerInner || !searchForm || !searchInput) return;
+
+        function isMobile() {
+            return window.matchMedia("(max-width: 768px)").matches;
+        }
+
+        function activateSearchMode() {
+            if (!isMobile()) return;
+            headerInner.classList.add("search-active");
+        }
+
+        function deactivateSearchMode() {
+            headerInner.classList.remove("search-active");
+        }
+
+        searchInput.addEventListener("focus", function () {
+            activateSearchMode();
+        });
+
+        searchForm.addEventListener("focusin", function () {
+            activateSearchMode();
+        });
+
+        searchForm.addEventListener("focusout", function () {
+            setTimeout(function () {
+                if (!searchForm.contains(document.activeElement)) {
+                    deactivateSearchMode();
+                }
+            }, 0);
+        });
+
+        if (closeBtn) {
+            closeBtn.addEventListener("click", function () {
+                deactivateSearchMode();
+                searchInput.blur();
+            });
+        }
+
+        window.addEventListener("resize", function () {
+            if (!isMobile()) {
+                deactivateSearchMode();
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

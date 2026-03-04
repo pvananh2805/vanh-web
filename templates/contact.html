@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Liên hệ - MSS MinhSonStone{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-title">Liên hệ</h1>
+        <p class="page-subtitle">Chúng tôi luôn sẵn sàng hỗ trợ bạn</p>
+    </div>
+</section>
+
+<section class="section contact-section">
+    <div class="container">
+        <div class="contact-grid">
+            <!-- Contact Info -->
+            <div class="contact-info">
+                <h2>Thông tin liên hệ</h2>
+                <p class="contact-intro">Hãy liên hệ với chúng tôi nếu bạn có bất kỳ câu hỏi nào về sản phẩm hoặc dịch vụ.</p>
+                
+                <div class="contact-cards">
+                    <div class="contact-card">
+                        <div class="contact-icon">📍</div>
+                        <div class="contact-details">
+                            <h4>Địa chỉ</h4>
+                            <p>{{ site_shop.address or 'Đang cập nhật' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">📞</div>
+                        <div class="contact-details">
+                            <h4>Điện thoại</h4>
+                            {% if site_shop.phone %}
+                            <p><a href="tel:{{ site_shop.phone }}">{{ site_shop.phone }}</a></p>
+                            {% else %}
+                            <p>Đang cập nhật</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">✉️</div>
+                        <div class="contact-details">
+                            <h4>Email / Facebook</h4>
+                            <p>
+                                {% if site_shop.gmail %}
+                                <a href="mailto:{{ site_shop.gmail }}">{{ site_shop.gmail }}</a>
+                                {% else %}
+                                Đang cập nhật
+                                {% endif %}
+                                <br>
+                                {% if site_shop.facebook %}
+                                <a href="{{ site_shop.facebook }}" target="_blank" rel="noopener">Facebook cửa hàng</a>
+                                {% else %}
+                                Đang cập nhật
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">🕐</div>
+                        <div class="contact-details">
+                            <h4>Giờ làm việc</h4>
+                            <p>Thứ 2 - Thứ 7: 8:00 - 18:00<br>Chủ nhật: 8:00 - 12:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="contact-form-box">
+                <h2>Gửi tin nhắn</h2>
+                <form class="contact-form" method="POST" action="{{ url_for('submit_contact') }}">
+                    <div class="form-group">
+                        <label for="contact-name">Họ và tên <span class="required">*</span></label>
+                        <input type="text" id="contact-name" name="name" class="form-input" placeholder="Nhập họ và tên" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact-phone">Số điện thoại <span class="required">*</span></label>
+                        <input type="tel" id="contact-phone" name="phone" class="form-input" placeholder="Nhập số điện thoại" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact-email">Email</label>
+                        <input type="email" id="contact-email" name="email" class="form-input" placeholder="Nhập email (không bắt buộc)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact-subject">Chủ đề</label>
+                        <select id="contact-subject" name="subject" class="form-select">
+                            <option value="">-- Chọn chủ đề --</option>
+                            <option value="tu-van">Tư vấn sản phẩm</option>
+                            <option value="bao-gia">Báo giá</option>
+                            <option value="dat-hang">Đặt hàng</option>
+                            <option value="khieu-nai">Khiếu nại</option>
+                            <option value="khac">Khác</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact-message">Nội dung <span class="required">*</span></label>
+                        <textarea id="contact-message" name="message" class="form-textarea" rows="5" placeholder="Nhập nội dung tin nhắn..." required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Gửi tin nhắn</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<section class="map-section">
+    <div class="map-placeholder">
+        <div class="map-overlay-text">
+            <span>🗺️</span>
+            <p>Bản đồ vị trí cửa hàng</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

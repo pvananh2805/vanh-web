@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Yêu thích - MSS MinhSonStone{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="container">
+    <h1 class="page-title">Yêu thích</h1>
+    <p class="page-subtitle">Các sản phẩm bạn đã thêm vào yêu thích</p>
+  </div>
+</section>
+
+<section class="section products-section">
+  <div class="container">
+    {% if products %}
+    <div class="products-grid">
+      {% for product in products %}
+      <div class="product-card">
+        <div class="product-image">
+          <img src="{{ product.image }}" alt="{{ product.name }}">
+          <a href="#" class="contact-overlay" title="Liên hệ">Liên hệ</a>
+          {% set favs = session.get('favorites', []) %}
+          {% if product.id in favs %}
+          <form method="POST" action="{{ url_for('favorites_remove', id=product.id) }}" style="display:inline;">
+            <button class="favorite-btn" title="Đã thích">♥</button>
+          </form>
+          {% else %}
+          <form method="POST" action="{{ url_for('favorites_add', id=product.id) }}" style="display:inline;">
+            <button class="favorite-btn" title="Thích">♡</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>Chưa có sản phẩm yêu thích. Hãy thêm vài sản phẩm vào danh sách yêu thích của bạn.</p>
+      <a href="{{ url_for('products') }}" class="btn btn-primary">Xem sản phẩm</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+<script>
+document.addEventListener('click', function(e){
+    if (e.target.closest && e.target.closest('.contact-overlay')) {
+        e.preventDefault();
+    }
+});
+
+document.querySelectorAll('.copy-contact').forEach(item => {
+  item.addEventListener('click', event => {
+    const contactInfo = event.target.getAttribute('data-value');
+    navigator.clipboard.writeText(contactInfo).then(() => {
+      alert('Đã sao chép: ' + contactInfo);
+    }, () => {
+      alert('Sao chép thất bại!');
+    });
+  });
+});
+</script>
+{% endblock %}

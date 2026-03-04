@@ -1,0 +1,172 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Quản lý bình luận - Admin MSS{% endblock %}
+{% block page_title %}Quản lý bình luận{% endblock %}
+
+{% block content %}
+<!-- Toolbar -->
+<div class="dashboard-card">
+    <div class="card-body">
+        <form class="comments-filter-form" method="GET">
+            <input
+                type="text"
+                name="q"
+                class="form-input"
+                placeholder="Tìm theo tên, email, nội dung, sản phẩm..."
+                value="{{ filters.q if filters is defined else '' }}"
+            >
+            <select name="status" class="form-select filter-select">
+                {% set active_status = filters.status if filters is defined else 'all' %}
+                <option value="all" {% if active_status == 'all' %}selected{% endif %}>Tất cả</option>
+                <option value="pending" {% if active_status == 'pending' %}selected{% endif %}>Chờ duyệt</option>
+                <option value="approved" {% if active_status == 'approved' %}selected{% endif %}>Đã duyệt</option>
+                <option value="read" {% if active_status == 'read' %}selected{% endif %}>Đã đọc</option>
+            </select>
+            <button type="submit" class="btn btn-secondary">Lọc</button>
+            <a href="{{ url_for('admin_comments') }}" class="btn btn-secondary">Đặt lại</a>
+        </form>
+    </div>
+</div>
+
+<!-- Comments List -->
+<div class="comments-admin-list">
+    {% if comments %}
+    {% for comment in comments %}
+    <div class="comment-admin-card">
+        <div class="comment-admin-header">
+            <div class="comment-user">
+                <div class="comment-avatar">{{ comment.avatar or '?' }}</div>
+                <div class="comment-user-info">
+                    <strong>{{ comment.name or 'Khách' }}</strong>
+                    <span class="comment-email">{{ comment.email or 'Không có email' }}</span>
+                </div>
+            </div>
+            <div class="comment-meta">
+                <span class="comment-date">{{ comment.date or 'Không rõ thời gian' }}</span>
+                <span class="comment-status status-{{ comment.status }}">
+                    {% if comment.status == 'approved' %}
+                        Đã duyệt
+                    {% elif comment.status == 'read' %}
+                        Đã đọc
+                    {% else %}
+                        Chờ duyệt
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="comment-admin-body">
+            <p class="comment-product">
+                <strong>Sản phẩm:</strong>
+                {% if comment.product_id and comment.product_id > 0 %}
+                    <a href="{{ url_for('product_detail', id=comment.product_id) }}" target="_blank" rel="noopener">{{ comment.product_name }}</a>
+                {% else %}
+                    <span>{{ comment.product_name }}</span>
+                {% endif %}
+            </p>
+            <p class="comment-content">{{ comment.content or '(Không có nội dung)' }}</p>
+        </div>
+
+        <div class="comment-admin-actions">
+            <button
+                type="button"
+                class="btn btn-sm btn-secondary btn-comment-edit"
+                data-id="{{ comment.id }}"
+                data-name="{{ (comment.name or 'Khách')|e }}"
+                data-content="{{ (comment.content or '')|e }}"
+            >
+                Sửa
+            </button>
+            {% if comment.status != 'approved' %}
+            <form method="POST" action="{{ url_for('admin_approve_comment') }}" style="display:inline;">
+                <input type="hidden" name="id" value="{{ comment.id }}">
+                <button type="submit" class="btn btn-sm btn-success">Duyệt</button>
+            </form>
+            {% endif %}
+            <button type="button" class="btn btn-sm btn-danger btn-comment-delete" data-id="{{ comment.id }}">Xóa</button>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="dashboard-card">
+        <div class="card-body">
+            <p class="text-muted">Không có bình luận phù hợp bộ lọc.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Edit Comment Modal -->
+<div class="modal-overlay" id="edit-comment-modal">
+    <div class="modal-box">
+        <a href="#" class="modal-close">&times;</a>
+        <h2 class="modal-title">Chỉnh sửa bình luận</h2>
+
+        <form class="admin-form" id="edit-comment-form" method="POST" action="{{ url_for('admin_edit_comment') }}">
+            <input type="hidden" name="id" value="">
+
+            <div class="form-group">
+                <label>Tên người bình luận</label>
+                <input type="text" name="name" class="form-input" value="" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Nội dung bình luận</label>
+                <textarea name="content" class="form-textarea" rows="4"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <a href="#" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Comment Modal -->
+<div class="modal-overlay" id="delete-comment-modal">
+    <div class="modal-box modal-sm">
+        <a href="#" class="modal-close">&times;</a>
+        <div class="modal-icon modal-icon-danger">⚠️</div>
+        <h2 class="modal-title">Xác nhận xóa</h2>
+        <p class="modal-text">Bạn có chắc chắn muốn xóa bình luận này?</p>
+
+        <form id="delete-comment-form" method="POST" action="{{ url_for('admin_delete_comment') }}">
+            <input type="hidden" name="id" value="">
+            <div class="modal-actions">
+                <a href="#" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-danger">Xóa</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var editForm = document.getElementById('edit-comment-form');
+    var deleteForm = document.getElementById('delete-comment-form');
+    if (!editForm || !deleteForm) return;
+
+    var editIdInput = editForm.querySelector('input[name="id"]');
+    var editNameInput = editForm.querySelector('input[name="name"]');
+    var editContentInput = editForm.querySelector('textarea[name="content"]');
+    var deleteIdInput = deleteForm.querySelector('input[name="id"]');
+
+    document.querySelectorAll('.btn-comment-edit').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (editIdInput) editIdInput.value = btn.dataset.id || '';
+            if (editNameInput) editNameInput.value = btn.dataset.name || '';
+            if (editContentInput) editContentInput.value = btn.dataset.content || '';
+            window.location.hash = '#edit-comment-modal';
+        });
+    });
+
+    document.querySelectorAll('.btn-comment-delete').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (deleteIdInput) deleteIdInput.value = btn.dataset.id || '';
+            window.location.hash = '#delete-comment-modal';
+        });
+    });
+});
+</script>
+{% endblock %}

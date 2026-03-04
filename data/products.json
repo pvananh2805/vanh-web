@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "name": "test",
+    "price": 212.0,
+    "category": "eqw3e",
+    "category_slug": "eqw",
+    "description": "e3r",
+    "image": "Anh_chup_man_hinh_2026-01-01_203631.png",
+    "views": 5849,
+    "created_at": "02/01/2026 11:00",
+    "visible": true,
+    "sku": "",
+    "size": "dsa",
+    "origin": "12asd"
+  },
+  {
+    "id": 253476890,
+    "name": "caubebanmatuy",
+    "sku": "231",
+    "price": "ádasd",
+    "category": "ưeq",
+    "category_slug": "qưeasd",
+    "size": "ádasd",
+    "origin": "ádasd",
+    "description": "sadasd",
+    "image": "product_20260304204311949350_2j5htk.jpg",
+    "views": 0,
+    "created_at": "04/03/2026 20:43",
+    "visible": true,
+    "seq": 1
+  }
+]

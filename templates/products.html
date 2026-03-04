@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Sản phẩm - MSS MinhSonStone{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-title">Sản phẩm</h1>
+        <p class="page-subtitle">Khám phá bộ sưu tập đá tự nhiên cao cấp của chúng tôi</p>
+    </div>
+</section>
+
+<section class="section products-section">
+    <div class="container">
+        <div class="products-layout">
+            <!-- Sidebar Filters -->
+            <aside class="products-sidebar">
+                <!-- Search -->
+                <div class="filter-box">
+                    <h3 class="filter-title">Tìm kiếm</h3>
+                    <form class="search-form" method="GET" action="{{ url_for('products') }}">
+                        <div class="search-wrapper">
+                            <input type="text" name="q" placeholder="Tìm kiếm sản phẩm..." class="search-input" value="{{ request.args.get('q', '') }}">
+                            <button type="submit" class="search-btn">
+                                <span class="search-icon">⌕</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Categories -->
+                <div class="filter-box">
+                    <h3 class="filter-title">Phân loại</h3>
+                    <div class="category-list">
+                        <a href="{{ url_for('products') }}" class="category-btn {% if not request.args.get('category') %}active{% endif %}">Tất cả</a>
+                        {% for cat in categories %}
+                            {% if cat.visible is not defined or cat.visible %}
+                                <a href="{{ url_for('products') }}?category={{ cat.slug }}" class="category-btn {% if request.args.get('category') == cat.slug %}active{% endif %}">{{ cat.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                </div>
+            </aside>
+            <div class="products-main">
+                <div class="products-grid">
+                    {% for product in products %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="{{ product.image }}" alt="{{ product.name }}">
+                            <a href="{{ url_for('product_detail', id=product.id) }}" class="detail-overlay">Xem chi tiết</a>
+
+                            {% set favs = session.get('favorites', []) %}
+                            {% if product.id in favs %}
+                            <form method="POST" action="{{ url_for('favorites_remove', id=product.id) }}">
+                                <button class="favorite-btn" title="Đã thích">♥</button>
+                            </form>
+                            {% else %}
+                            <form method="POST" action="{{ url_for('favorites_add', id=product.id) }}">
+                                <button class="favorite-btn" title="Thích">♡</button>
+                            </form>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            <p class="product-category">{{ product.category }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="pagination">
+                  {% if pagination is defined %}
+                    {% set cat=request.args.get('category') %}
+                    {% set q=request.args.get('q') %}
+                    {% if pagination.current_page > 1 %}
+                      <a href="{{ url_for('products', page=pagination.current_page-1, category=cat, q=q) }}" class="page-link">&laquo; Trước</a>
+                    {% else %}
+                      <span class="page-link disabled">&laquo; Trước</span>
+                    {% endif %}
+                    {% for p in range(1, pagination.total_pages + 1) %}
+                      {% if p == pagination.current_page %}
+                        <span class="page-link active">{{ p }}</span>
+                      {% else %}
+                        <a href="{{ url_for('products', page=p, category=cat, q=q) }}" class="page-link">{{ p }}</a>
+                      {% endif %}
+                    {% endfor %}
+                    {% if pagination.current_page < pagination.total_pages %}
+                      <a href="{{ url_for('products', page=pagination.current_page+1, category=cat, q=q) }}" class="page-link">Sau &raquo;</a>
+                    {% else %}
+                      <span class="page-link disabled">Sau &raquo;</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="page-link disabled">&laquo; Trước</span>
+                    <span class="page-link active">1</span>
+                  {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Small JS to prevent contact-overlay navigation -->
+<script>
+document.addEventListener('click', function(e){
+    if (e.target.closest && e.target.closest('.contact-overlay')) {
+        e.preventDefault();
+    }
+});
+document.querySelectorAll('.copy-contact').forEach(function(el){
+  el.addEventListener('click', function(e){
+    e.preventDefault();
+    const v = el.getAttribute('data-value') || '';
+    if(navigator.clipboard && v){
+      navigator.clipboard.writeText(v).then(function(){ alert('Đã sao chép: ' + v); });
+    }
+  });
+});
+</script>
+{% endblock %}

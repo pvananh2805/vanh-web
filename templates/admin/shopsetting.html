@@ -1,0 +1,25 @@
+{% extends "admin/admin_base.html" %}
+{% block content %}
+
+<h2>Shop Settings</h2>
+
+<form method="post">
+    <label>Tên shop</label>
+    <input name="name" value="{{shop.name}}">
+
+    <label>SĐT</label>
+    <input name="phone" value="{{shop.phone}}">
+
+    <label>Địa chỉ</label>
+    <input name="address" value="{{shop.address}}">
+
+    <label>Facebook</label>
+    <input name="facebook" value="{{shop.facebook}}">
+
+    <label>Mô tả</label>
+    <textarea name="description">{{shop.description}}</textarea>
+
+    <button type="submit">Lưu</button>
+</form>
+
+{% endblock %}

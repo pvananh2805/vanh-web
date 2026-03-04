@@ -1,0 +1,59 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Quản lý mã - Admin MSS{% endblock %}
+{% block page_title %}Quản lý mã{% endblock %}
+
+{% block content %}
+<div class="dashboard-card">
+  <div class="card-header"><h3>Quản lý mã</h3></div>
+  <div class="card-body">
+    <div id="codes-container">
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input id="new-code" class="form-input" placeholder="Nhập mã mới">
+        <button id="add-code" class="btn btn-primary">Thêm</button>
+      </div>
+      <div id="codes-list">
+        {% for code in codes %}
+        <div class="code-row" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+          <div class="code-value">{{ code }}</div>
+          <button class="btn btn-sm btn-danger btn-delete-code" data-code="{{ code }}">Xóa</button>
+        </div>
+        {% else %}
+        <div>Chưa có mã nào.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  async function del(code, row){
+    if(!confirm('Xác nhận xóa mã "'+code+'"?')) return;
+    const fd = new FormData(); fd.append('code', code);
+    const res = await fetch("{{ url_for('api_delete_code') }}", { method:'POST', body: fd, credentials:'same-origin' });
+    const j = await res.json();
+    if(j.success){ row.remove(); alert(j.message); } else alert(j.message||'Lỗi');
+  }
+  document.querySelectorAll('.btn-delete-code').forEach(b=>{
+    b.addEventListener('click', ()=> del(b.dataset.code, b.closest('.code-row')));
+  });
+  document.getElementById('add-code').addEventListener('click', async function(){
+    const input = document.getElementById('new-code');
+    const code = (input.value||'').trim(); if(!code){ alert('Nhập mã'); return; }
+    const fd = new FormData(); fd.append('code', code);
+    const res = await fetch("{{ url_for('api_add_code') }}", { method:'POST', body: fd, credentials:'same-origin' });
+    const j = await res.json();
+    if(j.success){
+      const list = document.getElementById('codes-list');
+      const div = document.createElement('div'); div.className='code-row'; div.style='display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);';
+      div.innerHTML = '<div class="code-value">'+code+'</div><button class="btn btn-sm btn-danger btn-delete-code" data-code="'+code+'">Xóa</button>';
+      list.appendChild(div);
+      div.querySelector('.btn-delete-code').addEventListener('click', ()=> del(code, div));
+      input.value = '';
+      alert(j.message);
+    } else alert(j.message || 'Lỗi');
+  });
+});
+</script>
+{% endblock %}

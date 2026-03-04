@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Trang chủ - MSS MinhSonStone{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <h1 class="hero-title">MSS – MinhSonStone</h1>
+        <p class="hero-subtitle">Đá tự nhiên cao cấp cho mọi công trình</p>
+        <p class="hero-desc">Chuyên cung cấp các loại đá granite, marble, đá ốp lát chất lượng cao với giá thành hợp lý</p>
+        <a href="{{ url_for('products') }}" class="btn btn-primary btn-lg">Xem sản phẩm</a>
+    </div>
+    <div class="hero-wave">
+        <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+            <path d="M0,64 C480,150 960,0 1440,64 L1440,120 L0,120 Z" fill="currentColor"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="section about-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Về chúng tôi</h2>
+            <p class="section-subtitle">Hơn 10 năm kinh nghiệm trong ngành đá tự nhiên</p>
+        </div>
+        <div class="about-grid">
+            <div class="about-card">
+                <div class="about-icon">💎</div>
+                <h3>Chất lượng cao</h3>
+                <p>Đá được chọn lọc kỹ càng, đảm bảo độ bền và thẩm mỹ</p>
+            </div>
+            <div class="about-card">
+                <div class="about-icon">🏆</div>
+                <h3>Uy tín hàng đầu</h3>
+                <p>Đối tác tin cậy của hàng ngàn công trình lớn nhỏ</p>
+            </div>
+            <div class="about-card">
+                <div class="about-icon">💰</div>
+                <h3>Giá cả hợp lý</h3>
+                <p>Cam kết giá tốt nhất thị trường với chất lượng đảm bảo</p>
+            </div>
+            <div class="about-card">
+                <div class="about-icon">🚚</div>
+                <h3>Giao hàng nhanh</h3>
+                <p>Vận chuyển toàn quốc, đúng hẹn và an toàn</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="section featured-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Sản phẩm nổi bật</h2>
+            <p class="section-subtitle">Những mẫu đá được yêu thích nhất</p>
+        </div>
+        <div class="products-grid">
+            {% for product in featured_products %}
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="{{ product.image }}" alt="{{ product.name }}">
+                    <a href="{{ url_for('product_detail', id=product.id) }}" class="detail-overlay">Xem chi tiết</a>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <p class="product-category">{{ product.category }}</p>
+                    <p class="product-price">{{ product.price }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="section-footer">
+            <a href="{{ url_for('products') }}" class="btn btn-outline">Xem tất cả sản phẩm</a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Bạn cần tư vấn?</h2>
+            <p>Liên hệ ngay với chúng tôi để được hỗ trợ tốt nhất</p>
+            <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">Liên hệ ngay</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

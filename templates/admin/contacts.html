@@ -1,0 +1,138 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Quản lý liên hệ - Admin MSS{% endblock %}
+{% block page_title %}Quản lý liên hệ{% endblock %}
+
+{% block content %}
+<!-- Toolbar -->
+<div class="admin-toolbar">
+    <div class="toolbar-left">
+        <form class="search-form" method="GET">
+            <input type="text" name="q" class="form-input" placeholder="Tìm kiếm liên hệ..." value="{{ request.args.get('q', '') }}">
+            <button type="submit" class="btn btn-secondary">Tìm</button>
+        </form>
+    </div>
+    <div class="toolbar-right">
+        <select class="form-select filter-select">
+            <option value="all">Tất cả</option>
+            <option value="unread">Chưa đọc</option>
+            <option value="read">Đã đọc</option>
+            <option value="replied">Đã trả lời</option>
+        </select>
+    </div>
+</div>
+
+<!-- Contacts Table -->
+<div class="dashboard-card">
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Trạng thái</th>
+                    <th>Họ tên</th>
+                    <th>Điện thoại</th>
+                    <th>Email</th>
+                    <th>Chủ đề</th>
+                    <th>Ngày gửi</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contact in contacts %}
+                <tr class="{% if contact.status == 'unread' %}row-unread{% endif %}">
+                    <td>
+                        <span class="status-dot status-{{ contact.status }}"></span>
+                    </td>
+                    <td>
+                        <strong>{{ contact.name }}</strong>
+                    </td>
+                    <td>{{ contact.phone }}</td>
+                    <td>{{ contact.email or '-' }}</td>
+                    <td>
+                        <span class="subject-badge">{{ contact.subject }}</span>
+                    </td>
+                    <td>{{ contact.date }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="#view-contact-modal" class="btn btn-sm btn-primary">Xem</a>
+                            <a href="#delete-contact-modal" class="btn btn-sm btn-danger">Xóa</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- View Contact Modal -->
+<div class="modal-overlay" id="view-contact-modal">
+    <div class="modal-box">
+        <a href="#" class="modal-close">&times;</a>
+        <h2 class="modal-title">Chi tiết liên hệ</h2>
+        
+        <div class="contact-detail">
+            <div class="contact-detail-row">
+                <span class="label">Họ tên:</span>
+                <span class="value">Nguyễn Văn A</span>
+            </div>
+            <div class="contact-detail-row">
+                <span class="label">Điện thoại:</span>
+                <span class="value">0123 456 789</span>
+            </div>
+            <div class="contact-detail-row">
+                <span class="label">Email:</span>
+                <span class="value">email@example.com</span>
+            </div>
+            <div class="contact-detail-row">
+                <span class="label">Chủ đề:</span>
+                <span class="value">Tư vấn sản phẩm</span>
+            </div>
+            <div class="contact-detail-row">
+                <span class="label">Ngày gửi:</span>
+                <span class="value">01/01/2024 10:30</span>
+            </div>
+            <div class="contact-detail-message">
+                <span class="label">Nội dung:</span>
+                <p class="message-text">
+                    Tôi muốn được tư vấn về các loại đá granite phù hợp cho sàn nhà. Diện tích khoảng 100m². Xin hãy liên hệ lại với tôi.
+                </p>
+            </div>
+        </div>
+        
+        <div class="modal-actions">
+            <form method="POST" action="{{ url_for('admin_mark_read') }}" style="display:inline;">
+                <input type="hidden" name="id" value="">
+                <button type="submit" class="btn btn-secondary">Đánh dấu đã đọc</button>
+            </form>
+            <a href="#" class="btn btn-primary">Đóng</a>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Contact Modal -->
+<div class="modal-overlay" id="delete-contact-modal">
+    <div class="modal-box modal-sm">
+        <a href="#" class="modal-close">&times;</a>
+        <div class="modal-icon modal-icon-danger">⚠️</div>
+        <h2 class="modal-title">Xác nhận xóa</h2>
+        <p class="modal-text">Bạn có chắc chắn muốn xóa liên hệ này?</p>
+        
+        <form method="POST" action="{{ url_for('admin_delete_contact') }}">
+            <input type="hidden" name="id" value="">
+            <div class="modal-actions">
+                <a href="#" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-danger">Xóa</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+    <a href="#" class="page-link disabled">&laquo; Trước</a>
+    <a href="#" class="page-link active">1</a>
+    <a href="#" class="page-link">2</a>
+    <a href="#" class="page-link">Sau &raquo;</a>
+</div>
+{% endblock %}

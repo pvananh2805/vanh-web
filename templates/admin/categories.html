@@ -1,0 +1,178 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Quản lý danh mục{% endblock %}
+{% block page_title %}Danh mục sản phẩm{% endblock %}
+
+{% block content %}
+<div class="dashboard-card">
+  <div class="card-body">
+    <h3>Thêm danh mục mới</h3>
+    <form method="post" action="{{ url_for('admin_add_category') }}" class="admin-form" style="display:flex;gap:8px;align-items:center;">
+      <input type="text" name="name" placeholder="Tên danh mục" class="form-input" required>
+      <input type="text" name="slug" placeholder="Slug (tùy chọn)" class="form-input" style="min-width:140px;">
+      <button type="submit" class="btn btn-primary">Thêm</button>
+    </form>
+  </div>
+</div>
+
+<div class="dashboard-card" style="margin-top:16px;">
+  <div class="card-body">
+    <h3>Danh sách danh mục</h3>
+    {% if categories %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tên</th>
+          <th>ID</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in categories %}
+        <tr data-id="{{ c.id }}">
+          <td>{{ loop.index }}</td>
+          <td>{{ c.name }}</td>
+          <td>{{ c.id }}</td>
+          <td>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="btn btn-sm btn-secondary btn-edit" data-id="{{ c.id }}" data-name="{{ c.name }}" data-slug="{{ c.slug }}">Sửa</button>
+              <button class="btn btn-sm {% if c.visible is defined and not c.visible %}btn-secondary{% else %}btn-outline{% endif %} btn-toggle" data-id="{{ c.id }}">
+                {% if c.visible is defined and not c.visible %}Hiện{% else %}Ẩn{% endif %}
+              </button>
+              <!-- open delete modal (set id) -->
+              <button class="btn btn-sm btn-danger btn-delete" data-id="{{ c.id }}">Xóa</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>Chưa có danh mục nào.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div class="modal-overlay" id="edit-category-modal">
+    <div class="modal-box modal-md">
+        <a href="#" class="modal-close">&times;</a>
+        <h2 class="modal-title">Chỉnh sửa danh mục</h2>
+
+        <form id="edit-category-form" class="admin-form" method="POST" action="{{ url_for('admin_edit_category') }}">
+            <input type="hidden" name="id" value="">
+
+            <div class="form-group">
+                <label>Tên danh mục <span class="required">*</span></label>
+                <input type="text" name="name" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label>Slug</label>
+                <input type="text" name="slug" class="form-input" placeholder="vi-du-danh-muc">
+            </div>
+
+            <div class="modal-actions">
+                <a href="#" class="btn btn-secondary modal-close" aria-label="Hủy">✖</a>
+                <button type="submit" class="btn">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Category Modal -->
+<div class="modal-overlay" id="delete-category-modal">
+    <div class="modal-box modal-sm">
+        <a href="#" class="modal-close">&times;</a>
+
+        <div class="modal-icon modal-icon-danger">⚠️</div>
+        <h2 class="modal-title">Xóa danh mục</h2>
+        <p class="modal-text">
+            Bạn có chắc chắn muốn xóa danh mục này?<br>
+            Các sản phẩm thuộc danh mục này sẽ không bị xóa.
+        </p>
+
+        <form id="delete-category-form" method="POST" action="{{ url_for('admin_delete_category') }}">
+            <input type="hidden" name="id" value="">
+
+            <div class="modal-actions">
+                <a href="#" class="btn btn-secondary modal-close" aria-label="Hủy">✖</a>
+                <button type="submit" class="btn btn-danger">Xóa</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  // open edit modal and populate
+  document.querySelectorAll('.btn-edit').forEach(function(b){
+    b.addEventListener('click', function(e){
+      e.preventDefault();
+      var id = this.dataset.id;
+      var name = this.dataset.name || '';
+      var slug = this.dataset.slug || '';
+      var modal = document.getElementById('edit-category-modal');
+      var form = document.getElementById('edit-category-form');
+      if(!modal || !form) return;
+      form.querySelector('input[name="id"]').value = id;
+      form.querySelector('input[name="name"]').value = name;
+      form.querySelector('input[name="slug"]').value = slug;
+      // open modal (use hash to match other modal system or display directly)
+      window.location.hash = '#edit-category-modal';
+    });
+  });
+
+  // delete: open delete modal and set id
+  document.querySelectorAll('.btn-delete').forEach(function(b){
+    b.addEventListener('click', function(e){
+      e.preventDefault();
+      var id = this.dataset.id;
+      var form = document.getElementById('delete-category-form');
+      if(!form) return;
+      form.querySelector('input[name="id"]').value = id;
+      window.location.hash = '#delete-category-modal';
+    });
+  });
+
+  // close modal buttons (elements with class modal-close)
+  Array.from(document.querySelectorAll('.modal-close')).forEach(function(c){
+    c.addEventListener('click', function(ev){
+      ev && ev.preventDefault && ev.preventDefault();
+      // clear hash to close modal UI that relies on :target or hash
+      if(location.hash && location.hash.indexOf('category-modal') !== -1){
+        history.pushState("", document.title, window.location.pathname + window.location.search);
+      }
+      // also hide overlays if your CSS toggles display (safe no-op if handled by CSS)
+      var m = this.closest('.modal-overlay');
+      if(m){ m.classList.remove('is-active'); m.style.display='none'; }
+    });
+  });
+
+  // toggle visible via AJAX
+  document.querySelectorAll('.btn-toggle').forEach(function(b){
+    b.addEventListener('click', async function(e){
+      e.preventDefault();
+      var id = this.dataset.id;
+      var btn = this;
+      try{
+        const fd = new FormData(); fd.append('id', id);
+        const res = await fetch("{{ url_for('admin_toggle_category') }}", { method:'POST', body: fd, credentials:'same-origin' });
+        const j = await res.json();
+        if(j.success){
+          if(j.visible){
+            btn.innerText = 'Ẩn';
+            btn.classList.remove('btn-secondary'); btn.classList.add('btn-outline');
+          } else {
+            btn.innerText = 'Hiện';
+            btn.classList.remove('btn-outline'); btn.classList.add('btn-secondary');
+          }
+        } else {
+          alert(j.message || 'Lỗi');
+        }
+      }catch(err){ alert('Lỗi mạng'); }
+    });
+  });
+});
+</script>
+{% endblock %}

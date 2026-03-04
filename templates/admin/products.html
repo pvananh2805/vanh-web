@@ -1,0 +1,475 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Quản lý sản phẩm - Admin MSS{% endblock %}
+{% block page_title %}Quản lý sản phẩm{% endblock %}
+
+{% block content %}
+<!-- Toolbar -->
+<div class="admin-toolbar">
+    <div class="toolbar-left">
+        <form class="search-form" method="GET">
+            <input type="text" name="q" class="form-input" placeholder="Tìm kiếm sản phẩm..." value="{{ request.args.get('q', '') }}">
+            <button type="submit" class="btn btn-secondary">Tìm</button>
+        </form>
+    </div>
+    <div class="toolbar-right">
+        <a href="#add-product-modal" class="btn btn-primary">+ Thêm sản phẩm</a>
+    </div>
+</div>
+
+<!-- Products Table -->
+<div class="dashboard-card">
+  <div class="card-body">
+    <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Hình ảnh</th>
+          <th>Tên sản phẩm</th>
+          <th>Danh mục</th>
+          <th>Giá</th>
+          <th>Lượt xem</th>
+          <th>Likes</th>
+          <th>Dislikes</th>
+          <th>Love</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td style="position:relative;">
+            <div class="thumb-wrap" style="position:relative;display:inline-block;">
+              <img src="{{ product.image_src or url_for('static', filename='images/placeholder.png') }}" alt="{{ product.name }}" class="product-thumb-lg">
+              <div class="thumb-overlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);color:#fff;opacity:0;transition:opacity .15s;border-radius:6px;cursor:pointer;">
+                Thông tin chi tiết
+              </div>
+            </div>
+          </td>
+          <td>
+            <strong>{{ product.name }}</strong><br>
+            <small class="text-muted">SKU: {{ product.sku or '-' }}</small>
+          </td>
+          <td>
+            <!-- yellow folder icon + category name -->
+            <span style="font-size:18px;margin-right:6px;vertical-align:middle;">📁</span>
+            <span class="category-badge">{{ product.category or product.category_slug or 'Khác' }}</span>
+          </td>
+          <td>{{ product.price }}</td>
+          <td>{{ product.views|default(0) }}</td>
+          <td>{{ product.likes|default(0) }}</td>
+          <td>{{ product.dislikes|default(0) }}</td>
+          <td>{{ product.love|default(0) }}</td>
+          <td>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <!-- edit: open modal and populate fields -->
+              <a href="#edit-product-modal"
+                 class="btn btn-sm btn-secondary btn-edit"
+                 data-id="{{ product.id }}"
+                 data-name="{{ product.name|e }}"
+                 data-sku="{{ product.sku|e }}"
+                 data-price="{{ product.price }}"
+                 data-category="{{ product.category_slug or product.category or '' }}"
+                 data-size="{{ product.size or '' }}"
+                 data-origin="{{ product.origin or '' }}"
+                 data-description="{{ product.description|e }}"
+                 data-image="{{ product.image_name or '' }}"
+                 data-image-src="{{ product.image_src or url_for('static', filename='images/placeholder.png') }}"
+              >Sửa</a>
+
+              <!-- visibility toggle -->
+              <button type="button" class="btn btn-sm btn-outline btn-visibility" data-id="{{ product.id }}">
+                {% if product.visible is defined and not product.visible %}Hiện{% else %}Ẩn{% endif %}
+              </button>
+
+              <!-- delete: open delete-confirm-modal and populate hidden id -->
+              <button type="button" class="btn btn-sm btn-danger btn-delete" data-id="{{ product.id }}">Xóa</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal-overlay" id="add-product-modal">
+    <div class="modal-box modal-lg">
+        <a href="#" class="modal-close">&times;</a>
+        <h2 class="modal-title">Thêm sản phẩm mới</h2>
+        
+        <form class="admin-form" method="POST" action="{{ url_for('admin_add_product') }}" enctype="multipart/form-data">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tên sản phẩm <span class="required">*</span></label>
+                    <input type="text" name="name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Mã sản phẩm (SKU)</label>
+                    <input type="text" name="sku" class="form-input">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Danh mục <span class="required">*</span></label>
+                    <select name="category" class="form-select" required>
+                        <option value="">-- Chọn danh mục --</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.slug }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Giá <span class="required">*</span></label>
+                    <input type="text" name="price" class="form-input" placeholder="VD: 500.000đ/m²" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kích thước</label>
+                    <input type="text" name="size" class="form-input" placeholder="VD: 60x60cm">
+                </div>
+                <div class="form-group">
+                    <label>Xuất xứ</label>
+                    <input type="text" name="origin" class="form-input" placeholder="VD: Việt Nam">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Mô tả sản phẩm</label>
+                <textarea name="description" class="form-textarea" rows="4"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Hình ảnh sản phẩm</label>
+                <div class="file-upload">
+                    <input type="file" name="image" id="add-product-image" accept="image/*">
+                    <label for="add-product-image" class="file-upload-label">
+                        <span class="upload-icon">📷</span>
+                        <span>Chọn hình ảnh</span>
+                    </label>
+                </div>
+                <div class="file-upload-meta">
+                    <span class="file-name" data-file-name="add-product-image">Chưa chọn ảnh</span>
+                    <button type="button" class="btn btn-sm btn-secondary clear-file-btn" data-file-target="add-product-image">Xóa file</button>
+                </div>
+                <div class="current-image is-hidden" id="add-image-preview-wrap">
+                    <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="Add image preview" class="preview-thumb" id="add-image-preview">
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <a href="#" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div class="modal-overlay" id="edit-product-modal">
+    <div class="modal-box modal-lg">
+        <a href="#" class="modal-close">&times;</a>
+        <h2 class="modal-title">Chỉnh sửa sản phẩm</h2>
+        
+        <form class="admin-form" method="POST" action="{{ url_for('admin_edit_product_noid') }}" enctype="multipart/form-data">
+            <input type="hidden" name="id" value="">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tên sản phẩm <span class="required">*</span></label>
+                    <input type="text" name="name" class="form-input" value="" required>
+                </div>
+                <div class="form-group">
+                    <label>Mã sản phẩm (SKU)</label>
+                    <input type="text" name="sku" class="form-input" value="">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Danh mục <span class="required">*</span></label>
+                    <select name="category" class="form-select" required>
+                        {% for cat in categories %}
+                        <option value="{{ cat.slug }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Giá <span class="required">*</span></label>
+                    <input type="text" name="price" class="form-input" value="" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kích thước</label>
+                    <input type="text" name="size" class="form-input" value="">
+                </div>
+                <div class="form-group">
+                    <label>Xuất xứ</label>
+                    <input type="text" name="origin" class="form-input" value="">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Mô tả sản phẩm</label>
+                <textarea name="description" class="form-textarea" rows="4"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Hình ảnh sản phẩm</label>
+                <div class="current-image">
+                    <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="Current image" class="preview-thumb" id="edit-image-preview">
+                </div>
+                <div class="form-group-inline">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="remove_image" value="1" id="remove-image-checkbox">
+                        Xóa ảnh hiện tại
+                    </label>
+                </div>
+                <div class="file-upload">
+                    <input type="file" name="image" id="edit-product-image" accept="image/*">
+                    <label for="edit-product-image" class="file-upload-label">
+                        <span class="upload-icon">📷</span>
+                        <span>Thay đổi hình ảnh</span>
+                    </label>
+                </div>
+                <div class="file-upload-meta">
+                    <span class="file-name" data-file-name="edit-product-image">Chưa chọn ảnh mới</span>
+                    <button type="button" class="btn btn-sm btn-secondary clear-file-btn" data-file-target="edit-product-image">Xóa file mới</button>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <a href="#" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="delete-confirm-modal">
+    <div class="modal-box modal-sm">
+        <a href="#" class="modal-close">&times;</a>
+        <div class="modal-icon modal-icon-danger">⚠️</div>
+        <h2 class="modal-title">Xác nhận xóa</h2>
+        <p class="modal-text">Bạn có chắc chắn muốn xóa sản phẩm này? Hành động này không thể hoàn tác.</p>
+        
+        <form method="POST" action="{{ url_for('admin_delete_product_noid') }}">
+            <input type="hidden" name="id" value="">
+            <div class="modal-actions">
+                <a href="#" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-danger">Xóa</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+    <a href="#" class="page-link disabled">&laquo; Trước</a>
+    <a href="#" class="page-link active">1</a>
+    <a href="#" class="page-link">2</a>
+    <a href="#" class="page-link">3</a>
+    <a href="#" class="page-link">Sau &raquo;</a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var placeholderImage = '/static/images/placeholder.png';
+
+  function setFileLabel(inputId, text) {
+    var label = document.querySelector('[data-file-name="' + inputId + '"]');
+    if (label) label.textContent = text;
+  }
+
+  function clearFileInput(input, inputId) {
+    if (!input) return;
+    input.value = '';
+    setFileLabel(inputId, inputId === 'add-product-image' ? 'Chưa chọn ảnh' : 'Chưa chọn ảnh mới');
+  }
+
+  function previewFromInput(input, previewEl) {
+    if (!input || !previewEl || !input.files || !input.files.length) return;
+    var file = input.files[0];
+    previewEl.src = URL.createObjectURL(file);
+  }
+
+  // hover overlay + click-to-toggle (keep visible)
+  document.querySelectorAll('.thumb-wrap').forEach(function (wrap) {
+    var overlay = wrap.querySelector('.thumb-overlay');
+    if (!overlay) return;
+    wrap.addEventListener('mouseenter', function () {
+      if (!overlay.classList.contains('sticky')) overlay.style.opacity = 1;
+    });
+    wrap.addEventListener('mouseleave', function () {
+      if (!overlay.classList.contains('sticky')) overlay.style.opacity = 0;
+    });
+    overlay.addEventListener('click', function (e) {
+      e.preventDefault();
+      overlay.classList.toggle('sticky');
+      overlay.style.opacity = overlay.classList.contains('sticky') ? 1 : 0;
+    });
+  });
+
+  // Add modal image handlers
+  var addForm = document.querySelector('#add-product-modal form');
+  var addInput = document.getElementById('add-product-image');
+  var addPreview = document.getElementById('add-image-preview');
+  var addPreviewWrap = document.getElementById('add-image-preview-wrap');
+  var addOpenBtn = document.querySelector('a[href="#add-product-modal"]');
+  var addClearBtn = document.querySelector('[data-file-target="add-product-image"]');
+
+  function resetAddImageInput() {
+    clearFileInput(addInput, 'add-product-image');
+    if (addPreview) addPreview.src = placeholderImage;
+    if (addPreviewWrap) addPreviewWrap.classList.add('is-hidden');
+  }
+
+  if (addInput) {
+    addInput.addEventListener('change', function () {
+      if (addInput.files && addInput.files.length) {
+        setFileLabel('add-product-image', addInput.files[0].name);
+        if (addPreviewWrap) addPreviewWrap.classList.remove('is-hidden');
+        previewFromInput(addInput, addPreview);
+      } else {
+        resetAddImageInput();
+      }
+    });
+  }
+
+  if (addClearBtn) {
+    addClearBtn.addEventListener('click', function () {
+      resetAddImageInput();
+    });
+  }
+
+  if (addOpenBtn && addForm) {
+    addOpenBtn.addEventListener('click', function () {
+      addForm.reset();
+      resetAddImageInput();
+    });
+  }
+
+  // Edit modal image handlers
+  var editModal = document.querySelector('#edit-product-modal');
+  var editForm = editModal ? editModal.querySelector('form') : null;
+  var editInput = document.getElementById('edit-product-image');
+  var editPreview = document.getElementById('edit-image-preview');
+  var removeImageCheckbox = document.getElementById('remove-image-checkbox');
+  var editClearBtn = document.querySelector('[data-file-target="edit-product-image"]');
+  var currentEditImageSrc = placeholderImage;
+
+  function resetEditFileInput() {
+    clearFileInput(editInput, 'edit-product-image');
+  }
+
+  function refreshEditPreview() {
+    if (!editPreview) return;
+    if (removeImageCheckbox && removeImageCheckbox.checked) {
+      editPreview.src = placeholderImage;
+      return;
+    }
+    if (editInput && editInput.files && editInput.files.length) {
+      previewFromInput(editInput, editPreview);
+      return;
+    }
+    editPreview.src = currentEditImageSrc || placeholderImage;
+  }
+
+  if (editInput) {
+    editInput.addEventListener('change', function () {
+      if (editInput.files && editInput.files.length) {
+        setFileLabel('edit-product-image', editInput.files[0].name);
+        if (removeImageCheckbox) removeImageCheckbox.checked = false;
+      } else {
+        setFileLabel('edit-product-image', 'Chưa chọn ảnh mới');
+      }
+      refreshEditPreview();
+    });
+  }
+
+  if (editClearBtn) {
+    editClearBtn.addEventListener('click', function () {
+      resetEditFileInput();
+      refreshEditPreview();
+    });
+  }
+
+  if (removeImageCheckbox) {
+    removeImageCheckbox.addEventListener('change', function () {
+      refreshEditPreview();
+    });
+  }
+
+  // populate edit modal from data-* attrs
+  document.querySelectorAll('.btn-edit').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (!editForm) return;
+      editForm.querySelector('input[name="id"]').value = btn.dataset.id || '';
+      editForm.querySelector('input[name="name"]').value = btn.dataset.name || '';
+      editForm.querySelector('input[name="sku"]').value = btn.dataset.sku || '';
+      editForm.querySelector('input[name="price"]').value = btn.dataset.price || '';
+      editForm.querySelector('input[name="size"]').value = btn.dataset.size || '';
+      editForm.querySelector('input[name="origin"]').value = btn.dataset.origin || '';
+      editForm.querySelector('textarea[name="description"]').value = btn.dataset.description || '';
+
+      var sel = editForm.querySelector('select[name="category"]');
+      if (sel) {
+        Array.from(sel.options).forEach(function (opt) {
+          opt.selected = opt.value === (btn.dataset.category || '');
+        });
+      }
+
+      currentEditImageSrc = btn.dataset.imageSrc || placeholderImage;
+      resetEditFileInput();
+      if (removeImageCheckbox) removeImageCheckbox.checked = false;
+      refreshEditPreview();
+      window.location.hash = '#edit-product-modal';
+    });
+  });
+
+  // delete button: set id in delete modal then open it
+  document.querySelectorAll('.btn-delete').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var modal = document.querySelector('#delete-confirm-modal');
+      var form = modal ? modal.querySelector('form') : null;
+      if (!form) return;
+      form.querySelector('input[name="id"]').value = btn.dataset.id || '';
+      window.location.hash = '#delete-confirm-modal';
+    });
+  });
+
+  // product visibility toggle (AJAX)
+  document.querySelectorAll('.btn-visibility').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      var id = this.dataset.id;
+      try {
+        const fd = new FormData();
+        fd.append('id', id);
+        const res = await fetch("{{ url_for('admin_toggle_product') }}", {
+          method: 'POST',
+          body: fd,
+          credentials: 'same-origin',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const j = await res.json();
+        if (j && j.success) {
+          btn.innerText = j.visible ? 'Ẩn' : 'Hiện';
+        } else {
+          alert(j.message || 'Lỗi');
+        }
+      } catch (e) {
+        alert('Lỗi mạng');
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

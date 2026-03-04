@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Card - {{ card.title }}{% endblock %}
+{% block content %}
+<section class="page-header">
+  <div class="container">
+    <h1 class="page-title">{{ card.title }}</h1>
+    <p class="page-subtitle">{{ shop.shop_name }}</p>
+  </div>
+</section>
+
+<section class="section card-section">
+  <div class="container">
+    <div class="card-box">
+      <div class="card-banner">
+        <h2>{{ card.banner }}</h2>
+      </div>
+      <div class="shop-info">
+        <p><strong>{{ shop.shop_name }}</strong></p>
+        <p>Vị trí: {{ shop.location }}</p>
+        <p>Địa chỉ: {{ shop.address }}</p>
+        <p>SĐT: <a href="#" class="copy-contact" data-type="phone" data-value="{{ shop.phone }}">{{ shop.phone }}</a></p>
+        <p>Email: <a href="#" class="copy-contact" data-type="gmail" data-value="{{ shop.gmail }}">{{ shop.gmail }}</a></p>
+        <p>Facebook: <a href="{{ shop.facebook }}" target="_blank">{{ shop.facebook }}</a></p>
+        <p>Zalo: <a href="#" class="copy-contact" data-type="zalo" data-value="{{ shop.zalo }}">{{ shop.zalo }}</a></p>
+      </div>
+      <div class="card-actions">
+        <a href="{{ url_for('products') }}" class="btn btn-primary">Xem sản phẩm</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll('.copy-contact').forEach(function(el){
+  el.addEventListener('click', function(e){
+    e.preventDefault();
+    const v = el.getAttribute('data-value') || '';
+    if(navigator.clipboard && v){
+      navigator.clipboard.writeText(v).then(function(){
+        alert('Đã sao chép: ' + v);
+      });
+    }
+  });
+});
+</script>
+{% endblock %}

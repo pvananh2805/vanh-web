@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin - MSS MinhSonStone{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css', v='20260302') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css', v='20260302') }}">
+</head>
+<body class="admin-body">
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <a href="{{ url_for('admin_dashboard') }}" class="admin-logo">
+                    <span class="logo-icon">◆</span>
+                    <span class="logo-text">MSS Admin</span>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('admin_products') }}" class="nav-link {% if active_page == 'products' %}active{% endif %}">
+                            <span class="nav-icon">📦</span>
+                            <span class="nav-text">Sản phẩm</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('admin_categories') }}" class="nav-link {% if active_page == 'categories' %}active{% endif %}">
+                            <span class="nav-icon">🗂</span>
+                            <span class="nav-text">Danh mục</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('admin_comments') }}" class="nav-link {% if active_page == 'comments' %}active{% endif %}">
+                            <span class="nav-icon">💬</span>
+                            <span class="nav-text">Bình luận</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('admin_contacts') }}" class="nav-link {% if active_page == 'contacts' %}active{% endif %}">
+                            <span class="nav-icon">📧</span>
+                            <span class="nav-text">Liên hệ</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('admin_stats') }}" class="nav-link {% if active_page == 'stats' %}active{% endif %}">
+                            <span class="nav-icon">📈</span>
+                            <span class="nav-text">Thống kê</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('admin_shop_info') }}" class="nav-link {% if active_page == 'shop' %}active{% endif %}">
+                            <span class="nav-icon">🏪</span>
+                            <span class="nav-text">Shop Info</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="{{ url_for('home') }}" class="nav-link">
+                    <span class="nav-icon">🌐</span>
+                    <span class="nav-text">Xem website</span>
+                </a>
+                <a href="{{ url_for('admin_logout') }}" class="nav-link logout-link">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-text">Đăng xuất</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Topbar -->
+            <header class="admin-topbar">
+                <div class="topbar-left">
+                    <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                </div>
+                <div class="topbar-right">
+                    <div class="admin-user">
+                        <span class="user-avatar">👤</span>
+                        <span class="user-name">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="admin-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+</body>
+</html>

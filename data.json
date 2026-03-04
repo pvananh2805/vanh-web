@@ -1,0 +1,34 @@
+{
+  "shop": {
+    "name": "MSS - MinhSon Stone",
+    "phone": "098xxxxxxx",
+    "address": "Nghệ An",
+    "facebook": "https://facebook.com/",
+    "description": "Chuyên đá ốp lát – bồn rửa – trang trí",
+    "logo": "/static/uploads/logo.png",
+    "gmail": "pvananh2805@gmail.com"
+  },
+  "stats": {
+    "total_views": 12456,
+    "total_likes": 1234,
+    "total_dislikes": 56,
+    "total_favorites": 892,
+    "total_contacts": 67,
+    "total_comments": 234
+  },
+  "cards": [],
+  "categories": [
+    {
+      "id": 915595408,
+      "name": "eqw3e",
+      "slug": "eqw",
+      "visible": true
+    },
+    {
+      "id": 560423757,
+      "name": "ưeq",
+      "slug": "qưeasd",
+      "visible": true
+    }
+  ]
+}

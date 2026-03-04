@@ -1,0 +1,210 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Dashboard - Admin MSS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card stat-card-blue">
+        <div class="stat-icon">👁</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ stats.total_views }}</h3>
+            <p class="stat-label">Lượt xem</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-card-green">
+        <div class="stat-icon">👍</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ stats.total_likes }}</h3>
+            <p class="stat-label">Lượt thích</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-card-red">
+        <div class="stat-icon">👎</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ stats.total_dislikes }}</h3>
+            <p class="stat-label">Không thích</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-card-pink">
+        <div class="stat-icon">♥</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ stats.total_favorites }}</h3>
+            <p class="stat-label">Yêu thích</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-card-purple">
+        <div class="stat-icon">📧</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ stats.total_contacts }}</h3>
+            <p class="stat-label">Liên hệ</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-card-orange">
+        <div class="stat-icon">💬</div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ stats.total_comments }}</h3>
+            <p class="stat-label">Bình luận</p>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <h3 class="chart-title">Thống kê theo tuần</h3>
+        <div class="chart-placeholder">
+            <div class="bar-chart">
+                <div class="bar-group">
+                    <div class="bar" style="height: 60%;"></div>
+                    <span class="bar-label">T2</span>
+                </div>
+                <div class="bar-group">
+                    <div class="bar" style="height: 80%;"></div>
+                    <span class="bar-label">T3</span>
+                </div>
+                <div class="bar-group">
+                    <div class="bar" style="height: 45%;"></div>
+                    <span class="bar-label">T4</span>
+                </div>
+                <div class="bar-group">
+                    <div class="bar" style="height: 90%;"></div>
+                    <span class="bar-label">T5</span>
+                </div>
+                <div class="bar-group">
+                    <div class="bar" style="height: 70%;"></div>
+                    <span class="bar-label">T6</span>
+                </div>
+                <div class="bar-group">
+                    <div class="bar" style="height: 55%;"></div>
+                    <span class="bar-label">T7</span>
+                </div>
+                <div class="bar-group">
+                    <div class="bar" style="height: 40%;"></div>
+                    <span class="bar-label">CN</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chart-card">
+        <h3 class="chart-title">Phân bố danh mục</h3>
+        <div class="chart-placeholder">
+            <div class="pie-chart-container">
+                <div class="pie-chart">
+                    <div class="pie-segment segment-1"></div>
+                    <div class="pie-segment segment-2"></div>
+                    <div class="pie-segment segment-3"></div>
+                    <div class="pie-segment segment-4"></div>
+                </div>
+                <div class="pie-legend">
+                    <div class="legend-item">
+                        <span class="legend-color color-1"></span>
+                        <span>Đá lát (35%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color color-2"></span>
+                        <span>Đá ốp tường (25%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color color-3"></span>
+                        <span>Đá bồn rửa (20%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color color-4"></span>
+                        <span>Đá trang trí (20%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Liên hệ mới nhất</h3>
+            <a href="{{ url_for('admin_contacts') }}" class="card-link">Xem tất cả →</a>
+        </div>
+        <div class="card-body">
+            <ul class="activity-list">
+                {% for contact in recent_contacts %}
+                <li class="activity-item">
+                    <div class="activity-icon">📧</div>
+                    <div class="activity-content">
+                        <p class="activity-title">{{ contact.name }}</p>
+                        <p class="activity-desc">{{ contact.message[:50] }}...</p>
+                        <span class="activity-time">{{ contact.date }}</span>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Bình luận mới nhất</h3>
+            <a href="{{ url_for('admin_comments') }}" class="card-link">Xem tất cả →</a>
+        </div>
+        <div class="card-body">
+            <ul class="activity-list">
+                {% for comment in recent_comments %}
+                <li class="activity-item">
+                    <div class="activity-icon">💬</div>
+                    <div class="activity-content">
+                        <p class="activity-title">{{ comment.name }}</p>
+                        <p class="activity-desc">{{ comment.content[:50] }}...</p>
+                        <span class="activity-time">{{ comment.date }}</span>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Top Products -->
+<div class="dashboard-card full-width">
+    <div class="card-header">
+        <h3>Sản phẩm nổi bật</h3>
+        <a href="{{ url_for('admin_products') }}" class="card-link">Quản lý sản phẩm →</a>
+    </div>
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Lượt xem</th>
+                    <th>Thích</th>
+                    <th>Yêu thích</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in top_products %}
+                <tr>
+                    <td>
+                        <div class="product-cell">
+                            <img src="{{ product.image }}" alt="{{ product.name }}" class="product-thumb">
+                            <span>{{ product.name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ product.category }}</td>
+                    <td>{{ product.views }}</td>
+                    <td>{{ product.likes }}</td>
+                    <td>{{ product.favorites }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
